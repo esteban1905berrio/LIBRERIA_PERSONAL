@@ -1,55 +1,64 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+
 import Colors from './src/constants/colors';
+
+// Importar pantallas
+import HomeScreen from './src/screens/HomeScreen';
+import BookListScreen from './src/screens/BookListScreen';
+import FavoritesScreen from './src/screens/FavoritesScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+
+// Instanciar el Tab Navigator
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      {/* Ícono representativo */}
-      <Text style={styles.icon}>🌿📚</Text>
-
-      {/* Nombre de la app */}
-      <Text style={styles.title}>Hojas & Raíces</Text>
-
-      {/* Subtítulo */}
-      <Text style={styles.subtitle}>Tu biblioteca personal</Text>
-
-      {/* Versión del proyecto */}
-      <Text style={styles.version}>v1.0.0 — Taller Integrador</Text>
-
+    <NavigationContainer>
       <StatusBar style="light" />
-    </View>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          // Mapear íconos según la pestaña activa o inactiva
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+
+            if (route.name === 'Inicio') {
+              iconName = focused ? 'home' : 'home-outline';
+            } else if (route.name === 'Mis Libros') {
+              iconName = focused ? 'library' : 'library-outline';
+            } else if (route.name === 'Favoritos') {
+              iconName = focused ? 'heart' : 'heart-outline';
+            } else if (route.name === 'Perfil') {
+              iconName = focused ? 'person' : 'person-outline';
+            }
+
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          // Estilos de color para la barra inferior
+          tabBarActiveTintColor: Colors.accentYellow,
+          tabBarInactiveTintColor: Colors.textMuted,
+          tabBarStyle: {
+            backgroundColor: Colors.surface,
+            borderTopColor: Colors.border,
+            paddingBottom: 5,
+            height: 60,
+          },
+          // Estilo general para las cabeceras (la barrita que dice "Inicio" o "Favoritos" arriba)
+          headerStyle: {
+            backgroundColor: Colors.surface,
+          },
+          headerTintColor: Colors.textPrimary,
+          headerTitleAlign: 'center',
+        })}
+      >
+        <Tab.Screen name="Inicio" component={HomeScreen} />
+        <Tab.Screen name="Mis Libros" component={BookListScreen} />
+        <Tab.Screen name="Favoritos" component={FavoritesScreen} />
+        <Tab.Screen name="Perfil" component={ProfileScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  icon: {
-    fontSize: 72,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: Colors.textPrimary,
-    letterSpacing: 2,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: Colors.textSecondary,
-    marginBottom: 32,
-  },
-  version: {
-    fontSize: 12,
-    color: Colors.textMuted,
-    position: 'absolute',
-    bottom: 40,
-  },
-});
