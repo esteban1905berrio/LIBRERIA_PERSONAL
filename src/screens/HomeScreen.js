@@ -2,14 +2,17 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
-import sampleBooks from '../data/sampleBooks';
+import { useBooks } from '../context/BooksContext';
 
 export default function HomeScreen() {
-  // Calculamos los totales usando nuestros datos de prueba
-  const totalBooks = sampleBooks.length;
-  const readBooks = sampleBooks.filter(book => book.status === 'leído').length;
-  const readingBooks = sampleBooks.filter(book => book.status === 'leyendo').length;
-  const pendingBooks = sampleBooks.filter(book => book.status === 'pendiente').length;
+  // Obtenemos los libros desde la "Burbuja" de datos (Contexto)
+  const { books } = useBooks();
+
+  // Calculamos los totales usando los datos del contexto
+  const totalBooks = books.length;
+  const readBooks = books.filter(book => book.status === 'leído').length;
+  const readingBooks = books.filter(book => book.status === 'leyendo').length;
+  const pendingBooks = books.filter(book => book.status === 'pendiente').length;
 
   return (
     <ImageBackground 

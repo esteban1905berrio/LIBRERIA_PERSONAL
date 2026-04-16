@@ -7,12 +7,14 @@ import { Ionicons } from '@expo/vector-icons';
 
 import Colors from './src/constants/colors';
 
+import { BooksProvider } from './src/context/BooksContext';
+
 // Importar pantallas
 import HomeScreen from './src/screens/HomeScreen';
 import BookListScreen from './src/screens/BookListScreen';
 import FavoritesScreen from './src/screens/FavoritesScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
-import BookDetailScreen from './src/screens/BookDetailScreen';
+import BookDetailScreen from './src/screens/BookDetailScreen'; 
 import AddEditBookScreen from './src/screens/AddEditBookScreen';
 
 // Instanciar los Navigators
@@ -68,38 +70,40 @@ function TabNavigator() {
 // 2. El Stack Navigator principal (que envuelve las pestañas y las pantallas sueltas)
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar style="light" />
-      <Stack.Navigator>
-        {/* Primero cargamos el bloque de pestañas inferiores, sin título de cabecera porque las pestañas ya tienen el suyo */}
-        <Stack.Screen 
-          name="MainTabs" 
-          component={TabNavigator} 
-          options={{ headerShown: false }} 
-        />
-        
-        {/* Aquí ponemos la pantalla que se sobrepondrá cuando toquemos un libro */}
-        <Stack.Screen 
-          name="BookDetail" 
-          component={BookDetailScreen} 
-          options={{ 
-            title: 'Detalle del Libro',
-            headerStyle: { backgroundColor: Colors.surface },
-            headerTintColor: Colors.textPrimary,
-          }} 
-        />
+    <BooksProvider>
+      <NavigationContainer>
+        <StatusBar style="light" />
+        <Stack.Navigator>
+          {/* Primero cargamos el bloque de pestañas inferiores, sin título de cabecera porque las pestañas ya tienen el suyo */}
+          <Stack.Screen 
+            name="MainTabs" 
+            component={TabNavigator} 
+            options={{ headerShown: false }} 
+          />
+          
+          {/* Aquí ponemos la pantalla que se sobrepondrá cuando toquemos un libro */}
+          <Stack.Screen 
+            name="BookDetail" 
+            component={BookDetailScreen} 
+            options={{ 
+              title: 'Detalle del Libro',
+              headerStyle: { backgroundColor: Colors.surface },
+              headerTintColor: Colors.textPrimary,
+            }} 
+          />
 
-        {/* Pantalla para agregar o editar libros */}
-        <Stack.Screen 
-          name="AddEditBook" 
-          component={AddEditBookScreen} 
-          options={{ 
-            title: 'Nuevo Libro',
-            headerStyle: { backgroundColor: Colors.surface },
-            headerTintColor: Colors.textPrimary,
-          }} 
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+          <Stack.Screen 
+            name="AddEditBook" 
+            component={AddEditBookScreen} 
+            options={{ 
+              title: 'Nuevo Libro 🌿',
+              headerStyle: { backgroundColor: Colors.surface },
+              headerTintColor: Colors.textPrimary,
+            }} 
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </BooksProvider>
   );
 }
+

@@ -2,50 +2,57 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
-import sampleBooks from '../data/sampleBooks';
+import { useBooks } from '../context/BooksContext';
 
 export default function BookListScreen({ navigation }) {
+  // Obtenemos los libros y la función para marcar favoritos del contexto
+  const { books, toggleFavorite } = useBooks();
   
   // Función que se encarga de "dibujar" cada fila de la lista
   const renderBookItem = ({ item }) => {
     return (
-      <TouchableOpacity 
-        style={styles.bookCard}
-        // Al tocar, navegamos a "BookDetail" y le enviamos invisiblemente el ID del libro
-        onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
-      >
-        {/* Imagen en miniatura */}
-        <Image 
-          source={{ uri: item.coverUrl }} 
-          style={styles.thumbnail} 
-        />
+      <View style={styles.bookCardContainer}>
+        <TouchableOpacity 
+          style={styles.bookCard}
+          // Al tocar el cuerpo del libro, vamos al detalle
+          onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
+        >
+          {/* Imagen en miniatura */}
+          <Image 
+            source={{ uri: item.coverUrl }} 
+            style={styles.thumbnail} 
+          />
 
-        <View style={styles.bookInfo}>
-          <Text style={styles.bookTitle}>{item.title}</Text>
-          <Text style={styles.bookAuthor}>{item.author}</Text>
-          <View style={styles.badgeContainer}>
-            <Text style={styles.genreBadge}>{item.genre}</Text>
-            {/* Color del estado dependiendo si está leído, leyendo o pendiente */}
-            <Text style={[
-              styles.statusText, 
-              item.status === 'leído' && { color: Colors.statusRead },
-              item.status === 'leyendo' && { color: Colors.statusReading },
-              item.status === 'pendiente' && { color: Colors.statusPending },
-            ]}>
-              • {item.status.toUpperCase()}
-            </Text>
+          <View style={styles.bookInfo}>
+            <Text style={styles.bookTitle}>{item.title}</Text>
+            <Text style={styles.bookAuthor}>{item.author}</Text>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.genreBadge}>{item.genre}</Text>
+              {/* Color del estado dependiendo si está leído, leyendo o pendiente */}
+              <Text style={[
+                styles.statusText, 
+                item.status === 'leído' && { color: Colors.statusRead },
+                item.status === 'leyendo' && { color: Colors.statusReading },
+                item.status === 'pendiente' && { color: Colors.statusPending },
+              ]}>
+                • {item.status.toUpperCase()}
+              </Text>
+            </View>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.bookActions}>
-           {/* Mostrar una estrellita si es favorito */}
-           {item.isFavorite ? (
-             <Ionicons name="star" size={24} color={Colors.favorite} />
-           ) : (
-             <Ionicons name="star-outline" size={24} color={Colors.textMuted} />
-           )}
-        </View>
-      </TouchableOpacity>
+        {/* Botón de favoritos independiente a la derecha */}
+        <TouchableOpacity 
+          style={styles.favoriteAction}
+          onPress={() => toggleFavorite(item.id)}
+        >
+          {item.isFavorite ? (
+            <Ionicons name="star" size={26} color={Colors.favorite} />
+          ) : (
+            <Ionicons name="star-outline" size={26} color={Colors.textMuted} />
+          )}
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -53,14 +60,14 @@ export default function BookListScreen({ navigation }) {
     <View style={styles.container}>
       {/* Componente clave en React Native para listas largas */}
       <FlatList
-        data={sampleBooks} // Los datos que va a recorrer
+        data={books} // Los datos que va a recorrer (ahora dinámicos)
         keyExtractor={(item) => item.id} // Cómo identificar cada elemento
         renderItem={renderBookItem} // La función que dibuja el diseño de un libro
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
 
-      {/* Floating Action Button (Botón Flotante) */}
+      {/* Botón Flotante (FAB) */}
       <TouchableOpacity 
         style={styles.fab}
         onPress={() => navigation.navigate('AddEditBook')}
@@ -80,16 +87,22 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 30, // Espacio al final por la navegación
   },
-  bookCard: {
+  bookCardContainer: {
     backgroundColor: Colors.surface,
     borderRadius: 12,
-    padding: 16,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    elevation: 3,
+    shadowOpacity: 0.2,
     borderLeftWidth: 4,
     borderLeftColor: Colors.accentGreen,
+  },
+  bookCard: {
+    flex: 1,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   thumbnail: {
     width: 50,
@@ -129,8 +142,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
-  bookActions: {
-    paddingLeft: 10,
+  favoriteAction: {
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   fab: {
     position: 'absolute',

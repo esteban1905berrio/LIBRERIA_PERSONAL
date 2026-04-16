@@ -2,37 +2,44 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
-import sampleBooks from '../data/sampleBooks';
+import { useBooks } from '../context/BooksContext';
 
 export default function FavoritesScreen({ navigation }) {
+  // Obtenemos los libros y la función para togglear favoritos del contexto
+  const { books, toggleFavorite } = useBooks();
   
   // 1. Filtrar la base de datos: ¡Solo queremos los favoritos!
-  const favoriteBooks = sampleBooks.filter(book => book.isFavorite === true);
+  const favoriteBooks = books.filter(book => book.isFavorite === true);
 
   // 2. Tarea para dibujar cada tarjeta (Casi igual a BookList pero con bordes dorados)
   const renderFavoriteItem = ({ item }) => {
     return (
-      <TouchableOpacity 
-        style={styles.bookCard}
-        onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
-      >
-        <Image 
-          source={{ uri: item.coverUrl }} 
-          style={styles.thumbnail} 
-        />
+      <View style={styles.bookCardContainer}>
+        <TouchableOpacity 
+          style={styles.bookCard}
+          onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
+        >
+          <Image 
+            source={{ uri: item.coverUrl }} 
+            style={styles.thumbnail} 
+          />
 
-        <View style={styles.bookInfo}>
-          <Text style={styles.bookTitle}>{item.title}</Text>
-          <Text style={styles.bookAuthor}>{item.author}</Text>
-          <View style={styles.badgeContainer}>
-            <Text style={styles.genreBadge}>{item.genre}</Text>
+          <View style={styles.bookInfo}>
+            <Text style={styles.bookTitle}>{item.title}</Text>
+            <Text style={styles.bookAuthor}>{item.author}</Text>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.genreBadge}>{item.genre}</Text>
+            </View>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.bookActions}>
+        <TouchableOpacity 
+          style={styles.favoriteAction}
+          onPress={() => toggleFavorite(item.id)}
+        >
            <Ionicons name="star" size={26} color={Colors.favorite} />
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -82,16 +89,22 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 30,
   },
-  bookCard: {
+  bookCardContainer: {
     backgroundColor: Colors.surface,
     borderRadius: 12,
-    padding: 16,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    elevation: 3,
+    shadowOpacity: 0.2,
     borderLeftWidth: 4,
-    borderLeftColor: Colors.favorite, // Borde Dorado/Amarillo Rasta para los favoritos!
+    borderLeftColor: Colors.favorite,
+  },
+  bookCard: {
+    flex: 1,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   thumbnail: {
     width: 60,
@@ -128,5 +141,10 @@ const styles = StyleSheet.create({
   },
   bookActions: {
     paddingLeft: 10,
+  },
+  favoriteAction: {
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

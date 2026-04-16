@@ -1,16 +1,38 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
-import sampleBooks from '../data/sampleBooks';
+import { useBooks } from '../context/BooksContext';
 
 // Recibimos 'route' que contiene los parámetros enviados desde BookListScreen
-export default function BookDetailScreen({ route }) {
+export default function BookDetailScreen({ route, navigation }) {
   // Extraemos el ID del libro que nos pasaron
   const { bookId } = route.params;
   
-  // Buscamos el libro en nuestra base de datos (por ahora en sampleBooks)
-  const book = sampleBooks.find(b => b.id === bookId);
+  // Obtenemos los libros y las funciones del cerebro central
+  const { books, deleteBook, toggleFavorite } = useBooks();
+  
+  // Buscamos el libro en nuestra base de datos dinámica
+  const book = books.find(b => b.id === bookId);
+
+  // Función para confirmar y eliminar
+  const handleDelete = () => {
+    Alert.alert(
+      '¿Eliminar libro?',
+      `¿Estás seguro de que quieres borrar "${book.title}"? Esta acción no se puede deshacer.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          style: 'destructive',
+          onPress: () => {
+            deleteBook(book.id);
+            navigation.goBack();
+          }
+        },
+      ]
+    );
+  };
 
   // Si por alguna razón no existe el libro, mostramos un error
   if (!book) {
@@ -30,7 +52,10 @@ export default function BookDetailScreen({ route }) {
           style={styles.coverImage} 
         />
         {/* Botón flotante para favoritos */}
-        <TouchableOpacity style={styles.favoriteButton}>
+        <TouchableOpacity 
+          style={styles.favoriteButton}
+          onPress={() => toggleFavorite(book.id)}
+        >
           <Ionicons 
             name={book.isFavorite ? "star" : "star-outline"} 
             size={28} 
@@ -53,6 +78,25 @@ export default function BookDetailScreen({ route }) {
             }]}>
             <Text style={styles.statusText}>{book.status.toUpperCase()}</Text>
           </View>
+        </View>
+
+        {/* Acciones de Edición y Borrado */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.editButton]}
+            onPress={() => navigation.navigate('AddEditBook', { bookId: book.id })}
+          >
+            <Ionicons name="pencil" size={20} color={Colors.textPrimary} />
+            <Text style={styles.actionButtonText}>Editar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={handleDelete}
+          >
+            <Ionicons name="trash" size={20} color={Colors.surface} />
+            <Text style={[styles.actionButtonText, { color: Colors.surface }]}>Eliminar</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Reseña / Notas */}
@@ -161,5 +205,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
     lineHeight: 24,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 40,
+  },
+  actionButton: {
+    flex: 0.48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 8,
+    elevation: 2,
+  },
+  editButton: {
+    backgroundColor: Colors.accentYellow,
+  },
+  deleteButton: {
+    backgroundColor: Colors.danger || '#FF4444',
+  },
+  actionButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 8,
+    color: Colors.textPrimary,
   },
 });
