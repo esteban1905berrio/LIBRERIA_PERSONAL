@@ -1,15 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import sampleBooks from '../data/sampleBooks';
 
-export default function BookListScreen() {
+export default function BookListScreen({ navigation }) {
   
   // Función que se encarga de "dibujar" cada fila de la lista
   const renderBookItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.bookCard}>
+      <TouchableOpacity 
+        style={styles.bookCard}
+        // Al tocar, navegamos a "BookDetail" y le enviamos invisiblemente el ID del libro
+        onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
+      >
+        {/* Imagen en miniatura */}
+        <Image 
+          source={{ uri: item.coverUrl }} 
+          style={styles.thumbnail} 
+        />
+
         <View style={styles.bookInfo}>
           <Text style={styles.bookTitle}>{item.title}</Text>
           <Text style={styles.bookAuthor}>{item.author}</Text>
@@ -49,6 +59,14 @@ export default function BookListScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* Floating Action Button (Botón Flotante) */}
+      <TouchableOpacity 
+        style={styles.fab}
+        onPress={() => navigation.navigate('AddEditBook')}
+      >
+        <Ionicons name="add" size={32} color={Colors.surface} />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -69,9 +87,15 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // Separa el texto de la estrellita
+    justifyContent: 'space-between',
     borderLeftWidth: 4,
-    borderLeftColor: Colors.accentGreen, // Detalle verde a la izquierda
+    borderLeftColor: Colors.accentGreen,
+  },
+  thumbnail: {
+    width: 50,
+    height: 70,
+    borderRadius: 4,
+    marginRight: 15,
   },
   bookInfo: {
     flex: 1,
@@ -107,5 +131,21 @@ const styles = StyleSheet.create({
   },
   bookActions: {
     paddingLeft: 10,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: Colors.accentYellow,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8, // Sombra para Android
+    shadowColor: '#000', // Sombras para iOS
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 5,
   },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 
 import Colors from './src/constants/colors';
@@ -11,14 +12,16 @@ import HomeScreen from './src/screens/HomeScreen';
 import BookListScreen from './src/screens/BookListScreen';
 import FavoritesScreen from './src/screens/FavoritesScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import BookDetailScreen from './src/screens/BookDetailScreen';
+import AddEditBookScreen from './src/screens/AddEditBookScreen';
 
-// Instanciar el Tab Navigator
+// Instanciar los Navigators
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-export default function App() {
+// 1. Agrupamos nuestras 4 pestañas de abajo en un solo componente
+function TabNavigator() {
   return (
-    <NavigationContainer>
-      <StatusBar style="light" />
       <Tab.Navigator
         screenOptions={({ route }) => ({
           // Mapear íconos según la pestaña activa o inactiva
@@ -59,6 +62,44 @@ export default function App() {
         <Tab.Screen name="Favoritos" component={FavoritesScreen} />
         <Tab.Screen name="Perfil" component={ProfileScreen} />
       </Tab.Navigator>
+  );
+}
+
+// 2. El Stack Navigator principal (que envuelve las pestañas y las pantallas sueltas)
+export default function App() {
+  return (
+    <NavigationContainer>
+      <StatusBar style="light" />
+      <Stack.Navigator>
+        {/* Primero cargamos el bloque de pestañas inferiores, sin título de cabecera porque las pestañas ya tienen el suyo */}
+        <Stack.Screen 
+          name="MainTabs" 
+          component={TabNavigator} 
+          options={{ headerShown: false }} 
+        />
+        
+        {/* Aquí ponemos la pantalla que se sobrepondrá cuando toquemos un libro */}
+        <Stack.Screen 
+          name="BookDetail" 
+          component={BookDetailScreen} 
+          options={{ 
+            title: 'Detalle del Libro',
+            headerStyle: { backgroundColor: Colors.surface },
+            headerTintColor: Colors.textPrimary,
+          }} 
+        />
+
+        {/* Pantalla para agregar o editar libros */}
+        <Stack.Screen 
+          name="AddEditBook" 
+          component={AddEditBookScreen} 
+          options={{ 
+            title: 'Nuevo Libro',
+            headerStyle: { backgroundColor: Colors.surface },
+            headerTintColor: Colors.textPrimary,
+          }} 
+        />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
