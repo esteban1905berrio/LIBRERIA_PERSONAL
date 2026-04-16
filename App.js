@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from './src/constants/colors';
 
 import { BooksProvider } from './src/context/BooksContext';
+import { UserProvider } from './src/context/UserContext';
 
 // Importar pantallas
 import HomeScreen from './src/screens/HomeScreen';
@@ -70,40 +71,42 @@ function TabNavigator() {
 // 2. El Stack Navigator principal (que envuelve las pestañas y las pantallas sueltas)
 export default function App() {
   return (
-    <BooksProvider>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <Stack.Navigator>
-          {/* Primero cargamos el bloque de pestañas inferiores, sin título de cabecera porque las pestañas ya tienen el suyo */}
-          <Stack.Screen 
-            name="MainTabs" 
-            component={TabNavigator} 
-            options={{ headerShown: false }} 
-          />
-          
-          {/* Aquí ponemos la pantalla que se sobrepondrá cuando toquemos un libro */}
-          <Stack.Screen 
-            name="BookDetail" 
-            component={BookDetailScreen} 
-            options={{ 
-              title: 'Detalle del Libro',
-              headerStyle: { backgroundColor: Colors.surface },
-              headerTintColor: Colors.textPrimary,
-            }} 
-          />
+    <UserProvider>
+      <BooksProvider>
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <Stack.Navigator>
+            {/* Primero cargamos el bloque de pestañas inferiores, sin título de cabecera porque las pestañas ya tienen el suyo */}
+            <Stack.Screen 
+              name="MainTabs" 
+              component={TabNavigator} 
+              options={{ headerShown: false }} 
+            />
+            
+            {/* Aquí ponemos la pantalla que se sobrepondrá cuando toquemos un libro */}
+            <Stack.Screen 
+              name="BookDetail" 
+              component={BookDetailScreen} 
+              options={{ 
+                title: 'Detalle del Libro',
+                headerStyle: { backgroundColor: Colors.surface },
+                headerTintColor: Colors.textPrimary,
+              }} 
+            />
 
-          <Stack.Screen 
-            name="AddEditBook" 
-            component={AddEditBookScreen} 
-            options={{ 
-              title: 'Nuevo Libro 🌿',
-              headerStyle: { backgroundColor: Colors.surface },
-              headerTintColor: Colors.textPrimary,
-            }} 
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </BooksProvider>
+            <Stack.Screen 
+              name="AddEditBook" 
+              component={AddEditBookScreen} 
+              options={{ 
+                title: 'Nuevo Libro 🌿',
+                headerStyle: { backgroundColor: Colors.surface },
+                headerTintColor: Colors.textPrimary,
+              }} 
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </BooksProvider>
+    </UserProvider>
   );
 }
 

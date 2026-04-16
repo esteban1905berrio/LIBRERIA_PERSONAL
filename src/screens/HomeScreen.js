@@ -3,16 +3,22 @@ import { View, Text, StyleSheet, ScrollView, ImageBackground } from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import { useBooks } from '../context/BooksContext';
+import { useUser } from '../context/UserContext';
 
 export default function HomeScreen() {
   // Obtenemos los libros desde la "Burbuja" de datos (Contexto)
   const { books } = useBooks();
+  // Obtenemos el perfil del usuario
+  const { userData } = useUser();
 
   // Calculamos los totales usando los datos del contexto
   const totalBooks = books.length;
   const readBooks = books.filter(book => book.status === 'leído').length;
   const readingBooks = books.filter(book => book.status === 'leyendo').length;
   const pendingBooks = books.filter(book => book.status === 'pendiente').length;
+
+  // Progreso de la meta
+  const progressPercent = Math.min((readBooks / (userData.annualGoal || 1)) * 100, 100);
 
   return (
     <ImageBackground 
@@ -23,10 +29,21 @@ export default function HomeScreen() {
       {/* Capa oscura más suave (aprox 50% de opacidad en vez de 80%) para dejar ver la imagen */}
       <View style={styles.overlay}>
         <ScrollView style={styles.container}>
-          {/* Cabecera / Saludo */}
+          {/* Cabecera / Saludo Dinámico */}
           <View style={styles.header}>
-            <Text style={styles.greeting}>¡Hola rastafari! 🌿</Text>
+            <Text style={styles.greeting}>¡Hola, {userData.name}! 🌿</Text>
             <Text style={styles.subtitle}>Aquí está el resumen de tu biblioteca</Text>
+          </View>
+
+          {/* Mini Dashboard de Meta Anual */}
+          <View style={styles.goalBanner}>
+            <View style={styles.goalHeader}>
+              <Text style={styles.goalText}>Meta del año: {readBooks} / {userData.annualGoal} libros</Text>
+              <Text style={styles.goalPercent}>{Math.round(progressPercent)}%</Text>
+            </View>
+            <View style={styles.miniProgressBarBg}>
+              <View style={[styles.miniProgressBarFill, { width: `${progressPercent}%` }]} />
+            </View>
           </View>
 
           {/* Tarjeta Principal: Total */}
@@ -153,5 +170,38 @@ const styles = StyleSheet.create({
     width: '48%',
     alignItems: 'center',
     borderBottomWidth: 4,
+  },
+  goalBanner: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  goalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  goalText: {
+    color: '#EFEFEF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  goalPercent: {
+    color: Colors.accentYellow,
+    fontWeight: 'bold',
+  },
+  miniProgressBarBg: {
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  miniProgressBarFill: {
+    height: '100%',
+    backgroundColor: Colors.accentYellow,
   },
 });
