@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import { useBooks } from '../context/BooksContext';
+import SmartImage from '../components/SmartImage';
 
 // Recibimos 'route' que contiene los parámetros enviados desde BookListScreen
 export default function BookDetailScreen({ route, navigation }) {
@@ -45,10 +46,10 @@ export default function BookDetailScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Portada del libro grande con efecto */}
+      {/* Portada del libro grande con efecto y fallback offline */}
       <View style={styles.imageContainer}>
-        <Image 
-          source={{ uri: book.coverUrl }} 
+        <SmartImage 
+          uri={book.coverUrl} 
           style={styles.coverImage} 
         />
         {/* Botón flotante para favoritos */}

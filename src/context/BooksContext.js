@@ -6,6 +6,22 @@ const BooksContext = createContext();
 
 const STORAGE_KEY = '@hojas_raices_books';
 
+// Pool de imágenes temáticas para nuevos libros
+const BOOK_COVERS = [
+  'https://images.unsplash.com/photo-1512820790803-83ca734da794', // Libros
+  'https://images.unsplash.com/photo-1495446815901-a7297e633e8d', // Libros 2
+  'https://images.unsplash.com/photo-1524578271613-d550eeb6877d', // Libros 3
+  'https://images.unsplash.com/photo-1507842217343-583bb7270b66', // Libros 4
+  'https://images.unsplash.com/photo-1543002588-bfa74002ed7e', // Artístico
+  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e', // Naturaleza
+  'https://images.unsplash.com/photo-1470770841072-f978cf4d019e', // Naturaleza 2
+  'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f', // Naturaleza 3
+  'https://images.unsplash.com/photo-1550684376-efcbd6e3f031', // Abstracto Rasta
+  'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e', // Abstracto Rasta 2
+  'https://images.unsplash.com/photo-1601662528567-526cd06f6582', // Arte Cultural
+  'https://images.unsplash.com/photo-1516979187457-637abb4f9353', // Libro en Naturaleza
+];
+
 export const BooksProvider = ({ children }) => {
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,11 +68,14 @@ export const BooksProvider = ({ children }) => {
 
   // AGREGAR (CREATE)
   const addBook = (newBook) => {
+    // Sorteo de portada aleatoria del pool temática
+    const randomCover = BOOK_COVERS[Math.floor(Math.random() * BOOK_COVERS.length)];
+
     const bookWithId = {
       ...newBook,
       id: Date.now().toString(),
       createdAt: new Date().toISOString().split('T')[0],
-      coverUrl: newBook.coverUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400',
+      coverUrl: newBook.coverUrl || randomCover,
     };
     setBooks((prevBooks) => [...prevBooks, bookWithId]);
   };

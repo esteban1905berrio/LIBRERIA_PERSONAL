@@ -1,12 +1,22 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import { useBooks } from '../context/BooksContext';
+import SmartImage from '../components/SmartImage';
 
 export default function BookListScreen({ navigation }) {
   // Obtenemos los libros y la función para marcar favoritos del contexto
   const { books, toggleFavorite } = useBooks();
+
+  // Estado para el texto de búsqueda
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Lógica de filtrado: filtramos por título o autor (ignorando mayúsculas/minúsculas)
+  const filteredBooks = books.filter(book => 
+    book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    book.author.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   
   // Función que se encarga de "dibujar" cada fila de la lista
   const renderBookItem = ({ item }) => {
@@ -17,9 +27,9 @@ export default function BookListScreen({ navigation }) {
           // Al tocar el cuerpo del libro, vamos al detalle
           onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
         >
-          {/* Imagen en miniatura */}
-          <Image 
-            source={{ uri: item.coverUrl }} 
+          {/* Imagen inteligente con soporte offline */}
+          <SmartImage 
+            uri={item.coverUrl} 
             style={styles.thumbnail} 
           />
 
@@ -58,13 +68,38 @@ export default function BookListScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Barra de búsqueda dinámica */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color={Colors.textMuted} style={styles.searchIcon} />
+        <TextInput 
+          style={styles.searchInput}
+          placeholder="Busca por título o autor..."
+          placeholderTextColor={Colors.textMuted}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          clearButtonMode="while-editing" // Solo para iOS
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <Ionicons name="close-circle" size={20} color={Colors.textMuted} />
+          </TouchableOpacity>
+        )}
+      </View>
+
       {/* Componente clave en React Native para listas largas */}
       <FlatList
-        data={books} // Los datos que va a recorrer (ahora dinámicos)
+        data={filteredBooks} // Ahora usamos la lista ya filtrada
         keyExtractor={(item) => item.id} // Cómo identificar cada elemento
         renderItem={renderBookItem} // La función que dibuja el diseño de un libro
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        // Mensaje si no se encuentra nada
+        ListEmptyComponent={
+          <View style={styles.emptySearch}>
+            <Ionicons name="search-outline" size={60} color={Colors.textMuted} />
+            <Text style={styles.emptySearchText}>No encontramos resultados para tu búsqueda 😕</Text>
+          </View>
+        }
       />
 
       {/* Botón Flotante (FAB) */}
@@ -83,9 +118,43 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    margin: 16,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    height: 50,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    color: Colors.textPrimary,
+    fontSize: 16,
+  },
   listContent: {
     padding: 16,
+    paddingTop: 8,
     paddingBottom: 30, // Espacio al final por la navegación
+  },
+  emptySearch: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 100,
+    paddingHorizontal: 40,
+  },
+  emptySearchText: {
+    color: Colors.textMuted,
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 20,
+    lineHeight: 24,
   },
   bookCardContainer: {
     backgroundColor: Colors.surface,

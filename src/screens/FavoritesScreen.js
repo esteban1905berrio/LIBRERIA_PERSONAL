@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import { useBooks } from '../context/BooksContext';
+import SmartImage from '../components/SmartImage';
 
 export default function FavoritesScreen({ navigation }) {
   // Obtenemos los libros y la función para togglear favoritos del contexto
@@ -19,8 +20,8 @@ export default function FavoritesScreen({ navigation }) {
           style={styles.bookCard}
           onPress={() => navigation.navigate('BookDetail', { bookId: item.id })}
         >
-          <Image 
-            source={{ uri: item.coverUrl }} 
+          <SmartImage 
+            uri={item.coverUrl} 
             style={styles.thumbnail} 
           />
 
